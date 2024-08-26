@@ -1,0 +1,132 @@
+app-id: com.alibabainc.dingtalk
+runtime: org.kde.Platform
+runtime-version: "5.15-23.08"
+sdk: org.kde.Sdk
+separate-locales: false
+command: dingtalk
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=x11
+  - --socket=pulseaudio
+  - --device=all
+  - --talk-name=org.freedesktop.secrets
+  - --talk-name=org.gnome.keyring
+  - --talk-name=org.kde.kwalletd5
+  - --talk-name=org.kde.kwalletd6
+  - --talk-name=org.gnome.ScreenSaver
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=com.canonical.indicator.application
+  - --talk-name=com.canonical.AppMenu.Registrar
+  - --talk-name=org.ayatana.indicator.application
+  - --talk-name=org.gnome.Mutter.IdleMonitor
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --filesystem=home
+  - --env=QT_AUTO_SCREEN_SCALE_FACTOR=1
+  - --env=QT_QPA_PLATFORM="wayland;xcb"
+  - --unset-env=WAYLAND_DISPLAY
+
+modules:
+  - shared-modules/gtk2/gtk2.json
+  - shared-modules/glu/glu-9.json
+  - name: libxcrypt
+    config-opts:
+      - --prefix=/app
+      - --enable-shared
+      - --enable-obsolete-api=glibc
+    sources:
+      - type: archive
+        url: https://github.com/besser82/libxcrypt/releases/download/v4.4.36/libxcrypt-4.4.36.tar.xz
+        sha256: e5e1f4caee0a01de2aee26e3138807d6d3ca2b8e67287966d1fefd65e1fd8943
+
+  # fix crashes when downloading files, not required on kde.
+  # - name: zenity
+  #   # TODO
+
+  # fix tray icon functionality in gnome.
+  - name: libxss
+    config-opts:
+      - --prefix=/app
+      - --sysconfdir=/etc
+    sources:
+      - type: archive
+        url: https://xorg.freedesktop.org/releases/individual/lib/libXScrnSaver-1.2.4.tar.xz
+        sha256: 75cd2859f38e207a090cac980d76bc71e9da99d48d09703584e00585abc920fe
+
+  # needed in wayland
+  # - name: qt5-wayland
+  #   buildsystem: qmake
+  #   cleanup:
+  #     - /bin
+  #     - /include
+  #     - /lib/*.a
+  #     - /lib/*.la
+  #     - /lib/*.prl
+  #     - /lib/cmake
+  #     - /lib/debug
+  #     - /lib/mkspecs
+  #     - /lib/pkgconfig
+  #   sources:
+  #     - type: archive
+  #       url: http://download.qt.io/archive/qt/5.15/5.15.14/submodules/qtwayland-everywhere-opensource-src-5.15.14.tar.xz
+  #       sha256: b51f66b0855938c4aeb0cd9b9a6b88595b9ddbb2acfb4350a019fc21b038eb5b
+      # build instructions copied from com.valvesoftware.SteamLink
+      # - type: patch
+      #   path: patches/org.kde.Sdk/qtwayland-use-gnome-platform-theme-on-gnome-based-desktops.patch
+      # - type: patch
+      #   path: patches/backports/Fix-installing-qtwayland-without-qtquick-or-opengl-s.patch
+      # - type: patch
+      #   path: patches/backports/Fix-build-with-libcxx-missing-array-include.patch
+  - name: dingtalk
+    buildsystem: simple
+    build-commands:
+      - install -D dingtalk.sh /app/bin/dingtalk
+      - install -D -t /app/bin/ -m 755 apply_extra
+      - install -D -t /app/bin/ /usr/bin/desktop-file-edit
+      - install -Dm644 -t /app/share/licenses/dingtalk/service-terms-zh.html service-terms-zh
+      - install -Dm644 -t /app/share/icons/hicolor/scalable/apps/ com.alibabainc.dingtalk.svg
+      - install -Dm644 -t /app/share/applications/ com.alibabainc.dingtalk.desktop
+      - install -Dm644 -t /app/share/metainfo/ com.alibabainc.dingtalk.metainfo.xml
+    sources:
+      - type: file
+        path: dingtalk.sh
+
+      - type: script
+        dest-filename: apply_extra
+        commands:
+          - mkdir tmp_extra
+          - bsdtar --to-stdout -xf dingtalk.deb data.* | bsdtar -C tmp_extra -xf -
+          - mkdir -p opt/dingtalk/release
+          - mkdir -p opt/usr/share/doc
+          - mv tmp_extra/opt/apps/com.alibabainc.dingtalk/files/*-Release.*/* opt/dingtalk/release/
+          - mv tmp_extra/opt/apps/com.alibabainc.dingtalk/files/version opt/dingtalk/
+          - mv tmp_extra/opt/apps/com.alibabainc.dingtalk/files/doc/com.alibabainc.dingtalk/ opt/usr/share/doc/dingtalk
+          # fix chinese input in workbench
+          - rm -rf opt/dingtalk/release/libgtk-x11-2.0.so.*
+          - rm -rf opt/dingtalk/release/{libm.so.6,Resources/{i18n/tool/*.exe,qss/mac,web_content/NativeWebContent_*.zip},libstdc*}
+          # cleanup
+          - rm dingtalk.deb
+          - rm -rf tmp_extra
+      # URLs in
+      # https://dtapp-pub.dingtalk.com/dingtalk-desktop/xc_dingtalk_update/linux_deb/Update/other/linux_dingtalk_update.json
+      - type: extra-data
+        filename: dingtalk.deb
+        only-arches: [x86_64]
+        url: https://dtapp-pub.dingtalk.com/dingtalk-desktop/xc_dingtalk_update/linux_deb/Release/com.alibabainc.dingtalk_7.6.0.40718_amd64.deb
+        sha256: 15efc8c27b90ce573e43716abd0cf60a330b740d5a77c800aa6723b0745e4e84
+        size: 353347712
+        x-checker-data:
+          type: json
+          url: https://dtapp-pub.dingtalk.com/dingtalk-desktop/xc_dingtalk_update/linux_deb/Update/other/amd64/linux_dingtalk_update_package_release.json
+          version-query: .install.package.version
+          url-query: .install.package.url
+          is-main-source: true
+
+      - type: file
+        path: com.alibabainc.dingtalk.metainfo.xml
+      - type: file
+        path: com.alibabainc.dingtalk.svg
+      - type: file
+        path: com.alibabainc.dingtalk.desktop
+      - type: file
+        path: service-terms-zh

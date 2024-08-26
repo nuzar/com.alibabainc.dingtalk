@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.alibabainc.dingtalk</id>
+  <name>DingTalk</name>
+  <name xml:lang="zh-Hans">钉钉</name>
+  <summary>Alibaba DingTalk</summary>
+  <summary xml:lang="zh-Hans">钉钉是阿里集团专为中小企业打造的通讯、协同的移动办公平台，帮助企业内部沟通和商务沟通更加高效安全。特色支持：消息阅读状态一目了然，重要事DING电话使命必达，紧急事免费电话多方通话，企业通讯录随时随地找人，多端互动。</summary>
+  <developer_name>Alibaba</developer_name>
+  <launchable type="desktop-id">com.alibabainc.dingtalk.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary=https://terms.alicdn.com/legal-agreement/terms/suit_bu1_dingtalk/suit_bu1_dingtalk202010200940_84493.html</project_license>
+  <description>
+    <p>钉钉是阿里集团专为中小企业打造的通讯、协同的移动办公平台，帮助企业内部沟通和商务沟通更加高效安全。特色支持：消息阅读状态一目了然，重要事DING电话使命必达，紧急事免费电话多方通话，企业通讯录随时随地找人，多端互动。</p>
+    <p>NOTE: This wrapper is not verified by, affiliated with, or supported by Alibaba, inc.</p>
+  </description>
+  <screenshots>
+  </screenshots>
+  <releases>
+    <release version="7.6.0-Release.40718" date="2024-07-18">
+      <description>版本：7.6.0-Release.40718 日期：2024.07.18\n变更说明：\n1、【功能】群聊@面板升级\n2、【功能】头像菜单面板升级\n3、【问题】修复若干bug&amp;稳定性问题</description>
+    </release>
+  </releases>
+  <url type="homepage">https://www.dingtalk.com/</url>
+  <categories>
+    <category>Office</category>
+    <category>Chat</category>
+    <category>Audio</category>
+  </categories>
+  <content_rating type="oars-1.1"/>
+</component>
